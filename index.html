@@ -7,30 +7,75 @@
 			content="width=device-width, initial-scale=1.0"
 		/>
 		<title>TikTok Live Game</title>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
 		<script src="https://cdn.tailwindcss.com"></script>
+
 	</head>
 	<body class="bg-gray-100 min-h-screen">
 		<div class="container mx-auto px-4 py-8">
-			<!-- Connexion -->
+			<!-- Formulaire de connexion et configuration -->
 			<div
 				id="connection-form"
 				class="mb-8"
 			>
-				<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-					<h2 class="text-2xl font-bold mb-4">Connexion TikTok Live</h2>
-					<div class="flex gap-2">
-						<input
-							type="text"
-							id="username-input"
-							placeholder="Nom d'utilisateur TikTok"
-							class="flex-1 p-2 border rounded"
-						/>
+				<div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+					<h2 class="text-2xl font-bold mb-6">Configuration du Jeu</h2>
+
+					<!-- Configuration TikTok -->
+					<div class="mb-6">
+						<h3 class="text-lg font-semibold mb-4">Connexion TikTok Live</h3>
+						<div class="flex gap-2 mb-4">
+							<input
+								type="text"
+								id="username-input"
+								placeholder="Nom d'utilisateur TikTok"
+								class="flex-1 p-2 border rounded"
+							/>
+						</div>
+					</div>
+
+					<!-- Configuration de la question -->
+					<div class="mb-6">
+						<h3 class="text-lg font-semibold mb-4">Configuration de la Question</h3>
+						<div class="space-y-4">
+							<div>
+								<label class="block text-sm font-medium mb-1">Question :</label>
+								<input
+									type="text"
+									id="question-input"
+									class="w-full p-2 border rounded"
+									placeholder="Entrez votre question"
+								/>
+							</div>
+							<div class="grid grid-cols-2 gap-4">
+								<div>
+									<label class="block text-sm font-medium mb-1">Option 1 :</label>
+									<input
+										type="text"
+										id="option1-input"
+										class="w-full p-2 border rounded"
+										placeholder="Première option"
+									/>
+								</div>
+								<div>
+									<label class="block text-sm font-medium mb-1">Option 2 :</label>
+									<input
+										type="text"
+										id="option2-input"
+										class="w-full p-2 border rounded"
+										placeholder="Deuxième option"
+									/>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Bouton de connexion -->
+					<div class="flex justify-end">
 						<button
 							id="connect-button"
-							class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+							class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
 						>
-							Connecter
+							Lancer le jeu
 						</button>
 					</div>
 					<div
@@ -40,13 +85,13 @@
 				</div>
 			</div>
 
-			<!-- Interface de jeu et chat -->
+			<!-- Interface de jeu -->
 			<div
 				id="game-interface"
 				class="hidden"
 			>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<!-- Game Section -->
+					<!-- Section jeu -->
 					<div class="bg-white rounded-lg shadow-md p-6 h-fit">
 						<div class="mb-4">
 							<h2 class="text-2xl font-bold text-center">Question en cours</h2>
@@ -54,13 +99,14 @@
 						<div
 							id="question-display"
 							class="text-lg mb-4 text-center font-bold"
-						>
-							Qui est le président de la France ?
-						</div>
+						></div>
 						<div class="grid grid-cols-2 gap-4 mb-4">
 							<div class="bg-blue-100 p-4 rounded text-center">
 								<div class="font-bold">Option 1</div>
-								<div class="text-xl my-2">Marine Le Pen</div>
+								<div
+									id="option1-display"
+									class="text-xl my-2"
+								></div>
 								<div class="mt-2">
 									Votes:
 									<span
@@ -72,7 +118,10 @@
 							</div>
 							<div class="bg-blue-100 p-4 rounded text-center">
 								<div class="font-bold">Option 2</div>
-								<div class="text-xl my-2">Sarkozy</div>
+								<div
+									id="option2-display"
+									class="text-xl my-2"
+								></div>
 								<div class="mt-2">
 									Votes:
 									<span
@@ -94,7 +143,7 @@
 						</div>
 					</div>
 
-					<!-- Chat Section -->
+					<!-- Section chat -->
 					<div class="bg-white rounded-lg shadow-md p-6">
 						<h3 class="text-xl font-bold mb-4">Chat en direct</h3>
 						<div
@@ -111,14 +160,30 @@
 			let gameActive = false
 			let currentTimer
 			let votes = { 1: 0, 2: 0 }
+			let gameConfig = {
+				question: "",
+				option1: "",
+				option2: "",
+			}
 
-			// Connexion
+			// Connexion et démarrage du jeu
 			document.getElementById("connect-button").addEventListener("click", () => {
 				const username = document.getElementById("username-input").value
-				if (!username) {
-					setStatus("Veuillez entrer un nom d'utilisateur", "error")
+				const question = document.getElementById("question-input").value
+				const option1 = document.getElementById("option1-input").value
+				const option2 = document.getElementById("option2-input").value
+
+				if (!username || !question || !option1 || !option2) {
+					setStatus("Veuillez remplir tous les champs", "error")
 					return
 				}
+
+				gameConfig = {
+					question: question,
+					option1: option1,
+					option2: option2,
+				}
+
 				connectToWebSocket(username)
 			})
 
@@ -178,13 +243,11 @@
 			}
 
 			function handleChatMessage(data) {
-				// Gestion des votes pendant le jeu
 				if (gameActive && (data.message === "1" || data.message === "2")) {
 					votes[data.message]++
 					updateVoteDisplay()
 				}
 
-				// Affichage du message dans le chat
 				const chatMessages = document.getElementById("chat-messages")
 				const messageElement = document.createElement("div")
 				messageElement.className = "p-2 hover:bg-gray-50 rounded"
@@ -200,7 +263,7 @@
 				gameActive = true
 				resetVotes()
 				showCurrentQuestion()
-				startTimer(60*5)
+				startTimer(60*7)
 			}
 
 			function resetGame() {
@@ -210,7 +273,9 @@
 			}
 
 			function showCurrentQuestion() {
-				document.getElementById("question-display").textContent = "Qui sera le prochain président de la France ?"
+				document.getElementById("question-display").textContent = gameConfig.question
+				document.getElementById("option1-display").textContent = gameConfig.option1
+				document.getElementById("option2-display").textContent = gameConfig.option2
 			}
 
 			function resetVotes() {
@@ -263,7 +328,7 @@
 					resultText.innerHTML = `
                     <div>
                         <div class="flex justify-between items-center mb-2">
-                            <span class="font-bold">Macron:</span>
+                            <span class="font-bold">${gameConfig.option1}:</span>
                             <span>${option1Percent}% (${votes["1"]} votes)</span>
                         </div>
                         <div class="h-4 bg-gray-200 rounded overflow-hidden">
@@ -272,7 +337,7 @@
                     </div>
                     <div>
                         <div class="flex justify-between items-center mb-2">
-                            <span class="font-bold">Sarkozy:</span>
+                            <span class="font-bold">${gameConfig.option2}:</span>
                             <span>${option2Percent}% (${votes["2"]} votes)</span>
                         </div>
                         <div class="h-4 bg-gray-200 rounded overflow-hidden">
@@ -293,7 +358,7 @@
 				setTimeout(() => {
 					document.body.removeChild(result)
 					startGame()
-				}, 10000)
+				}, 3000)
 			}
 
 			function setStatus(message, type = "info") {
