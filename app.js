@@ -6,7 +6,6 @@ import { fileURLToPath } from "url"
 import { dirname, join } from "path"
 import { readFile } from "fs/promises"
 
-// Obtenir le chemin du répertoire actuel en ES modules
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
@@ -19,16 +18,13 @@ const wss = new WebSocketServer({ server })
 const wsConnections = new Set()
 let currentTiktokConnection = null
 
-// Configuration du serveur pour éviter les timeouts
 server.keepAliveTimeout = 120 * 1000
 server.headersTimeout = 120 * 1000
 
-// Gestion des connexions WebSocket
 wss.on("connection", (ws) => {
 	console.log("Nouveau client WebSocket connecté")
 	wsConnections.add(ws)
 
-	// Gérer les messages reçus du client
 	ws.on("message", async (message) => {
 		try {
 			const data = JSON.parse(message)
@@ -50,7 +46,6 @@ wss.on("connection", (ws) => {
 	})
 })
 
-// Fonction pour déconnecter la connexion TikTok existante
 const disconnectTiktokConnection = async () => {
 	if (currentTiktokConnection) {
 		try {
@@ -62,16 +57,22 @@ const disconnectTiktokConnection = async () => {
 	}
 }
 
-// Configuration de la connexion TikTok
 const tiktokConfig = {
 	processInitialData: false,
-	enableExtendedGiftInfo: false,
+	enableExtendedGiftInfo: true,
 	enableWebsocketUpgrade: true,
 	requestPollingIntervalMs: 2000,
 	sessionId: process.env.TIKTOK_SESSION_ID || "123456789",
 }
 
-// Initialisation de la connexion TikTok Live
+const broadcastToAll = (message) => {
+	wsConnections.forEach((client) => {
+		if (client.readyState === 1) {
+			client.send(JSON.stringify(message))
+		}
+	})
+}
+
 const initTiktokLiveListener = async (tiktokLiveAccount, ws) => {
 	try {
 		const tiktokLiveConnection = new WebcastPushConnection(tiktokLiveAccount, tiktokConfig)
@@ -91,32 +92,92 @@ const initTiktokLiveListener = async (tiktokLiveAccount, ws) => {
 
 		let tiktokLiveLastMessage = null
 
-		// Gestion des messages du chat
+		// Messages du chat
 		tiktokLiveConnection.on("chat", (data) => {
 			if (tiktokLiveLastMessage === data.comment) {
-				console.log(`chat skip ---:${tiktokLiveLastMessage}`)
 				return
 			}
 
 			tiktokLiveLastMessage = data.comment
-			console.log(`chat:${data.comment}`)
+			console.log(`Chat: ${data.comment}`)
 
-			const response = {
+			broadcastToAll({
 				type: "chat",
 				message: data.comment,
 				userId: data.userId,
 				username: data.uniqueId,
 				timestamp: new Date().toISOString(),
-			}
-
-			wsConnections.forEach((client) => {
-				if (client.readyState === 1) {
-					client.send(JSON.stringify(response))
-				}
 			})
 		})
 
-		// Gestion des erreurs TikTok
+		// Cadeaux
+		tiktokLiveConnection.on("gift", (data) => {
+			let giftMessage = ""
+			if (data.giftType === 1 && !data.repeatEnd) {
+				giftMessage = `💝 ${data.uniqueId} envoie ${data.giftName} x${data.repeatCount}`
+			} else {
+				giftMessage = `💝 ${data.uniqueId} a envoyé ${data.giftName} x${data.repeatCount}`
+			}
+
+			broadcastToAll({
+				type: "chat",
+				message: giftMessage,
+				userId: data.userId,
+				username: "SYSTEM",
+				timestamp: new Date().toISOString(),
+				isSystem: true,
+			})
+		})
+
+		// Likes
+		tiktokLiveConnection.on("like", (data) => {
+			broadcastToAll({
+				type: "chat",
+				message: `❤️ ${data.uniqueId} envoie ${data.likeCount} likes`,
+				userId: data.userId,
+				username: "SYSTEM",
+				timestamp: new Date().toISOString(),
+				isSystem: true,
+			})
+		})
+
+		// Follows
+		tiktokLiveConnection.on("follow", (data) => {
+			broadcastToAll({
+				type: "chat",
+				message: `✨ ${data.uniqueId} suit maintenant le compte`,
+				userId: data.userId,
+				username: "SYSTEM",
+				timestamp: new Date().toISOString(),
+				isSystem: true,
+			})
+		})
+
+		// Shares
+		tiktokLiveConnection.on("share", (data) => {
+			broadcastToAll({
+				type: "chat",
+				message: `🔄 ${data.uniqueId} a partagé le live`,
+				userId: data.userId,
+				username: "SYSTEM",
+				timestamp: new Date().toISOString(),
+				isSystem: true,
+			})
+		})
+
+		// Nouveaux viewers
+		tiktokLiveConnection.on("member", (data) => {
+			broadcastToAll({
+				type: "chat",
+				message: `👋 ${data.uniqueId} rejoint le live`,
+				userId: data.userId,
+				username: "SYSTEM",
+				timestamp: new Date().toISOString(),
+				isSystem: true,
+			})
+		})
+
+		// Erreurs
 		tiktokLiveConnection.on("error", (err) => {
 			console.error("Erreur TikTok:", err)
 			ws.send(
@@ -139,7 +200,6 @@ const initTiktokLiveListener = async (tiktokLiveAccount, ws) => {
 	}
 }
 
-// Route pour servir la page HTML
 app.get("/", async (req, res) => {
 	try {
 		const htmlPath = join(__dirname, "index.html")
@@ -151,7 +211,6 @@ app.get("/", async (req, res) => {
 	}
 })
 
-// Démarrage du serveur
 server.listen(port, () => {
 	console.log(`Serveur démarré sur le port ${port}`)
 })
