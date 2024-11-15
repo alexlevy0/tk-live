@@ -60,7 +60,7 @@
 						<div class="grid grid-cols-2 gap-4 mb-4">
 							<div class="bg-blue-100 p-4 rounded text-center">
 								<div class="font-bold">Option 1</div>
-								<div class="text-xl my-2">Macron</div>
+								<div class="text-xl my-2">Marine Le Pen</div>
 								<div class="mt-2">
 									Votes:
 									<span
@@ -200,7 +200,7 @@
 				gameActive = true
 				resetVotes()
 				showCurrentQuestion()
-				startTimer(10)
+				startTimer(60*5)
 			}
 
 			function resetGame() {
@@ -210,7 +210,7 @@
 			}
 
 			function showCurrentQuestion() {
-				document.getElementById("question-display").textContent = "Qui est le président de la France ?"
+				document.getElementById("question-display").textContent = "Qui sera le prochain président de la France ?"
 			}
 
 			function resetVotes() {
@@ -293,7 +293,7 @@
 				setTimeout(() => {
 					document.body.removeChild(result)
 					startGame()
-				}, 3000)
+				}, 10000)
 			}
 
 			function setStatus(message, type = "info") {
