@@ -1,221 +1,266 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Live Game</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>TikTok Live Game</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+		<script src="https://cdn.tailwindcss.com"></script>
+	</head>
+	<body class="bg-gray-100 min-h-screen">
+		<div class="container mx-auto px-4 py-8">
+			<!-- Connexion -->
+			<div
+				id="connection-form"
+				class="mb-8"
+			>
+				<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+					<h2 class="text-2xl font-bold mb-4">Connexion TikTok Live</h2>
+					<div class="flex gap-2">
+						<input
+							type="text"
+							id="username-input"
+							placeholder="Nom d'utilisateur TikTok"
+							class="flex-1 p-2 border rounded"
+						/>
+						<button
+							id="connect-button"
+							class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+						>
+							Connecter
+						</button>
+					</div>
+					<div
+						id="status-message"
+						class="mt-4 text-center text-sm"
+					></div>
+				</div>
+			</div>
 
-</head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <!-- Connexion -->
-        <div id="connection-form" class="mb-8">
-            <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold mb-4">Connexion TikTok Live</h2>
-                <div class="flex gap-2">
-                    <input type="text" id="username-input" placeholder="Nom d'utilisateur TikTok" class="flex-1 p-2 border rounded">
-                    <button id="connect-button" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                        Connecter
-                    </button>
-                </div>
-                <div id="status-message" class="mt-4 text-center text-sm"></div>
-            </div>
-        </div>
+			<!-- Interface de jeu et chat -->
+			<div
+				id="game-interface"
+				class="hidden"
+			>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<!-- Game Section -->
+					<div class="bg-white rounded-lg shadow-md p-6 h-fit">
+						<div class="mb-4">
+							<h2 class="text-2xl font-bold text-center">Question en cours</h2>
+						</div>
+						<div
+							id="question-display"
+							class="text-lg mb-4 text-center font-bold"
+						>
+							Qui est le président de la France ?
+						</div>
+						<div class="grid grid-cols-2 gap-4 mb-4">
+							<div class="bg-blue-100 p-4 rounded text-center">
+								<div class="font-bold">Option 1</div>
+								<div class="text-xl my-2">Macron</div>
+								<div class="mt-2">
+									Votes:
+									<span
+										id="votes-1"
+										class="font-bold"
+										>0</span
+									>
+								</div>
+							</div>
+							<div class="bg-blue-100 p-4 rounded text-center">
+								<div class="font-bold">Option 2</div>
+								<div class="text-xl my-2">Sarkozy</div>
+								<div class="mt-2">
+									Votes:
+									<span
+										id="votes-2"
+										class="font-bold"
+										>0</span
+									>
+								</div>
+							</div>
+						</div>
+						<div class="bg-gray-100 p-4 rounded text-center">
+							<div class="font-bold mb-2">Temps restant</div>
+							<div
+								id="timer"
+								class="text-3xl font-bold text-blue-600"
+							>
+								10
+							</div>
+						</div>
+					</div>
 
-        <!-- Interface de jeu et chat -->
-        <div id="game-interface" class="hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Game Section -->
-                <div class="bg-white rounded-lg shadow-md p-6 h-fit">
-                    <div class="mb-4">
-                        <h2 class="text-2xl font-bold text-center">Question en cours</h2>
-                    </div>
-                    <div id="question-display" class="text-lg mb-4 text-center font-bold">
-                        Qui est le président de la France ?
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div class="bg-blue-100 p-4 rounded text-center">
-                            <div class="font-bold">Option 1</div>
-                            <div class="text-xl my-2">Macron</div>
-                            <div class="mt-2">Votes: <span id="votes-1" class="font-bold">0</span></div>
-                        </div>
-                        <div class="bg-blue-100 p-4 rounded text-center">
-                            <div class="font-bold">Option 2</div>
-                            <div class="text-xl my-2">Sarkozy</div>
-                            <div class="mt-2">Votes: <span id="votes-2" class="font-bold">0</span></div>
-                        </div>
-                    </div>
-                    <div class="bg-gray-100 p-4 rounded text-center">
-                        <div class="font-bold mb-2">Temps restant</div>
-                        <div id="timer" class="text-3xl font-bold text-blue-600">10</div>
-                    </div>
-                </div>
+					<!-- Chat Section -->
+					<div class="bg-white rounded-lg shadow-md p-6">
+						<h3 class="text-xl font-bold mb-4">Chat en direct</h3>
+						<div
+							id="chat-messages"
+							class="h-[600px] overflow-y-auto border rounded p-4 space-y-1"
+						></div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-                <!-- Chat Section -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-bold mb-4">Chat en direct</h3>
-                    <div id="chat-messages" class="h-[600px] overflow-y-auto border rounded p-4 space-y-1">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+		<script>
+			let ws
+			let gameActive = false
+			let currentTimer
+			let votes = { 1: 0, 2: 0 }
 
-    <script>
-        let ws;
-        let gameActive = false;
-        let currentTimer;
-        let votes = { "1": 0, "2": 0 };
+			// Connexion
+			document.getElementById("connect-button").addEventListener("click", () => {
+				const username = document.getElementById("username-input").value
+				if (!username) {
+					setStatus("Veuillez entrer un nom d'utilisateur", "error")
+					return
+				}
+				connectToWebSocket(username)
+			})
 
-        // Connexion
-        document.getElementById('connect-button').addEventListener('click', () => {
-            const username = document.getElementById('username-input').value;
-            if (!username) {
-                setStatus('Veuillez entrer un nom d\'utilisateur', 'error');
-                return;
-            }
-            connectToWebSocket(username);
-        });
+			function connectToWebSocket(username) {
+				const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
+				const wsUrl = `${protocol}//${window.location.host}`
 
-        function connectToWebSocket(username) {
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}`;
-            
-            ws = new WebSocket(wsUrl);
-            
-            ws.onopen = () => {
-                ws.send(JSON.stringify({
-                    type: 'connect',
-                    username: username
-                }));
-            };
+				ws = new WebSocket(wsUrl)
 
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                handleWebSocketMessage(data);
-            };
+				ws.onopen = () => {
+					ws.send(
+						JSON.stringify({
+							type: "connect",
+							username: username,
+						}),
+					)
+				}
 
-            ws.onerror = (error) => {
-                setStatus('Erreur de connexion', 'error');
-                console.error('WebSocket error:', error);
-            };
+				ws.onmessage = (event) => {
+					const data = JSON.parse(event.data)
+					handleWebSocketMessage(data)
+				}
 
-            ws.onclose = () => {
-                setStatus('Connexion fermée', 'error');
-                document.getElementById('game-interface').classList.add('hidden');
-                document.getElementById('connection-form').classList.remove('hidden');
-                resetGame();
-            };
-        }
+				ws.onerror = (error) => {
+					setStatus("Erreur de connexion", "error")
+					console.error("WebSocket error:", error)
+				}
 
-        function handleWebSocketMessage(data) {
-            switch (data.type) {
-                case 'connection_status':
-                    handleConnectionStatus(data);
-                    break;
-                case 'chat':
-                    handleChatMessage(data);
-                    break;
-            }
-        }
+				ws.onclose = () => {
+					setStatus("Connexion fermée", "error")
+					document.getElementById("game-interface").classList.add("hidden")
+					document.getElementById("connection-form").classList.remove("hidden")
+					resetGame()
+				}
+			}
 
-        function handleConnectionStatus(data) {
-            if (data.status === 'connected') {
-                setStatus(`Connecté à ${data.username}`, 'success');
-                document.getElementById('game-interface').classList.remove('hidden');
-                document.getElementById('connection-form').classList.add('hidden');
-                setTimeout(startGame, 1000);
-            } else if (data.status === 'error') {
-                setStatus(`Erreur: ${data.message}`, 'error');
-            }
-        }
+			function handleWebSocketMessage(data) {
+				switch (data.type) {
+					case "connection_status":
+						handleConnectionStatus(data)
+						break
+					case "chat":
+						handleChatMessage(data)
+						break
+				}
+			}
 
-        function handleChatMessage(data) {
-            // Gestion des votes pendant le jeu
-            if (gameActive && (data.message === "1" || data.message === "2")) {
-                votes[data.message]++;
-                updateVoteDisplay();
-            }
+			function handleConnectionStatus(data) {
+				if (data.status === "connected") {
+					setStatus(`Connecté à ${data.username}`, "success")
+					document.getElementById("game-interface").classList.remove("hidden")
+					document.getElementById("connection-form").classList.add("hidden")
+					setTimeout(startGame, 1000)
+				} else if (data.status === "error") {
+					setStatus(`Erreur: ${data.message}`, "error")
+				}
+			}
 
-            // Affichage du message dans le chat
-            const chatMessages = document.getElementById('chat-messages');
-            const messageElement = document.createElement('div');
-            messageElement.className = 'p-2 hover:bg-gray-50 rounded';
-            messageElement.innerHTML = `
+			function handleChatMessage(data) {
+				// Gestion des votes pendant le jeu
+				if (gameActive && (data.message === "1" || data.message === "2")) {
+					votes[data.message]++
+					updateVoteDisplay()
+				}
+
+				// Affichage du message dans le chat
+				const chatMessages = document.getElementById("chat-messages")
+				const messageElement = document.createElement("div")
+				messageElement.className = "p-2 hover:bg-gray-50 rounded"
+				messageElement.innerHTML = `
                 <span class="font-bold">${data.username}:</span>
                 <span>${data.message}</span>
-            `;
-            chatMessages.appendChild(messageElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+            `
+				chatMessages.appendChild(messageElement)
+				chatMessages.scrollTop = chatMessages.scrollHeight
+			}
 
-        function startGame() {
-            gameActive = true;
-            resetVotes();
-            showCurrentQuestion();
-            startTimer(10);
-        }
+			function startGame() {
+				gameActive = true
+				resetVotes()
+				showCurrentQuestion()
+				startTimer(10)
+			}
 
-        function resetGame() {
-            gameActive = false;
-            clearInterval(currentTimer);
-            resetVotes();
-        }
+			function resetGame() {
+				gameActive = false
+				clearInterval(currentTimer)
+				resetVotes()
+			}
 
-        function showCurrentQuestion() {
-            document.getElementById('question-display').textContent = "Qui est le président de la France ?";
-        }
+			function showCurrentQuestion() {
+				document.getElementById("question-display").textContent = "Qui est le président de la France ?"
+			}
 
-        function resetVotes() {
-            votes = { "1": 0, "2": 0 };
-            updateVoteDisplay();
-        }
+			function resetVotes() {
+				votes = { 1: 0, 2: 0 }
+				updateVoteDisplay()
+			}
 
-        function updateVoteDisplay() {
-            document.getElementById('votes-1').textContent = votes["1"];
-            document.getElementById('votes-2').textContent = votes["2"];
-        }
+			function updateVoteDisplay() {
+				document.getElementById("votes-1").textContent = votes["1"]
+				document.getElementById("votes-2").textContent = votes["2"]
+			}
 
-        function startTimer(duration) {
-            let timeLeft = duration;
-            document.getElementById('timer').textContent = timeLeft;
-            
-            clearInterval(currentTimer);
-            currentTimer = setInterval(() => {
-                timeLeft--;
-                document.getElementById('timer').textContent = timeLeft;
-                
-                if (timeLeft <= 0) {
-                    endRound();
-                }
-            }, 1000);
-        }
+			function startTimer(duration) {
+				let timeLeft = duration
+				document.getElementById("timer").textContent = timeLeft
 
-        function endRound() {
-            clearInterval(currentTimer);
-            gameActive = false;
-            
-            const total = votes["1"] + votes["2"];
-            let result = document.createElement('div');
-            result.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-            
-            let resultContent = document.createElement('div');
-            resultContent.className = 'bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4';
-            
-            let resultTitle = document.createElement('h3');
-            resultTitle.className = 'text-xl font-bold mb-4 text-center';
-            resultTitle.textContent = 'Résultats';
-            
-            let resultText = document.createElement('div');
-            resultText.className = 'space-y-4';
-            
-            if (total > 0) {
-                const option1Percent = Math.round((votes["1"] / total) * 100);
-                const option2Percent = Math.round((votes["2"] / total) * 100);
-                
-                resultText.innerHTML = `
+				clearInterval(currentTimer)
+				currentTimer = setInterval(() => {
+					timeLeft--
+					document.getElementById("timer").textContent = timeLeft
+
+					if (timeLeft <= 0) {
+						endRound()
+					}
+				}, 1000)
+			}
+
+			function endRound() {
+				clearInterval(currentTimer)
+				gameActive = false
+
+				const total = votes["1"] + votes["2"]
+				let result = document.createElement("div")
+				result.className = "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+
+				let resultContent = document.createElement("div")
+				resultContent.className = "bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4"
+
+				let resultTitle = document.createElement("h3")
+				resultTitle.className = "text-xl font-bold mb-4 text-center"
+				resultTitle.textContent = "Résultats"
+
+				let resultText = document.createElement("div")
+				resultText.className = "space-y-4"
+
+				if (total > 0) {
+					const option1Percent = Math.round((votes["1"] / total) * 100)
+					const option2Percent = Math.round((votes["2"] / total) * 100)
+
+					resultText.innerHTML = `
                     <div>
                         <div class="flex justify-between items-center mb-2">
                             <span class="font-bold">Macron:</span>
@@ -234,28 +279,28 @@
                             <div class="h-full bg-blue-500 transition-all duration-500" style="width: ${option2Percent}%"></div>
                         </div>
                     </div>
-                `;
-            } else {
-                resultText.textContent = "Aucun vote reçu";
-            }
-            
-            resultContent.appendChild(resultTitle);
-            resultContent.appendChild(resultText);
-            result.appendChild(resultContent);
-            
-            document.body.appendChild(result);
-            
-            setTimeout(() => {
-                document.body.removeChild(result);
-                startGame();
-            }, 3000);
-        }
+                `
+				} else {
+					resultText.textContent = "Aucun vote reçu"
+				}
 
-        function setStatus(message, type = 'info') {
-            const statusElement = document.getElementById('status-message');
-            statusElement.textContent = message;
-            statusElement.className = `mt-4 text-center text-sm ${type === 'error' ? 'text-red-500' : 'text-green-500'}`;
-        }
-    </script>
-</body>
+				resultContent.appendChild(resultTitle)
+				resultContent.appendChild(resultText)
+				result.appendChild(resultContent)
+
+				document.body.appendChild(result)
+
+				setTimeout(() => {
+					document.body.removeChild(result)
+					startGame()
+				}, 3000)
+			}
+
+			function setStatus(message, type = "info") {
+				const statusElement = document.getElementById("status-message")
+				statusElement.textContent = message
+				statusElement.className = `mt-4 text-center text-sm ${type === "error" ? "text-red-500" : "text-green-500"}`
+			}
+		</script>
+	</body>
 </html>
