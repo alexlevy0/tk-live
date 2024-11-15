@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { readFile } from 'fs/promises';
 
+console.log('STARTING...', {__filename}, {__dirname})
 // Obtenir le chemin du répertoire actuel en ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
