@@ -7,10 +7,44 @@
 			content="width=device-width, initial-scale=1.0"
 		/>
 		<title>TikTok Live Game</title>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
-		<script src="https://cdn.tailwindcss.com"></script>
+		<!-- Préchargement des ressources critiques -->
+		<link
+			rel="preload"
+			href="https://cdn.tailwindcss.com"
+			as="style"
+		/>
+		<link
+			rel="preconnect"
+			href="https://cdn.tailwindcss.com"
+		/>
 
+		<!-- Style critique inline pour le First Paint -->
+		<style>
+			.hidden {
+				display: none;
+			}
+			.container {
+				width: 100%;
+				margin: 0 auto;
+				padding: 1rem;
+			}
+			#connection-form {
+				opacity: 1;
+				transition: opacity 0.3s;
+			}
+			#game-interface {
+				opacity: 0;
+				transition: opacity 0.3s;
+			}
+		</style>
 
+		<!-- Chargement différé de Tailwind -->
+		<link
+			rel="stylesheet"
+			href="https://cdn.tailwindcss.com"
+			media="print"
+			onload="this.media='all'"
+		/>
 	</head>
 	<body class="bg-gray-100 min-h-screen">
 		<div class="container mx-auto px-4 py-8">
@@ -157,7 +191,7 @@
 			</div>
 		</div>
 
-		<script>
+		<script type="module">
 			let ws
 			let gameActive = false
 			let currentTimer
@@ -273,7 +307,7 @@
 				gameActive = true
 				resetVotes()
 				showCurrentQuestion()
-				startTimer(60*7)
+				startTimer(60 * 7)
 			}
 
 			function resetGame() {
